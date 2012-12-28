@@ -97,7 +97,9 @@ function read_query( packet )
     -- Called by mysql-proxy for each query comming from a mysql-client
     if packet:byte() == proxy.COM_QUERY then
         local query = packet:sub(2)
-        if query:sub(1,6):lower() == 'select' then
+        --if query:sub(1,6):lower() == 'select' then
+        --for emample, if we need get the time "select now();", the cache is not needed
+        if query:lower():find('(select).*(from).*') then
             local resultset = lru_cache_get(proxy.global.lru_cache, query)
             if resultset then
                 proxy.response.type = proxy.MYSQLD_PACKET_OK
